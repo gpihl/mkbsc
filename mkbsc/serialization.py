@@ -22,7 +22,14 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
 
     call(["dot", "-Tpng", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
     if view:
-        call(("start " if os.name == "nt" else "xdg-open ") + folder + "/" + filename + ".png", shell=True)
+        command = ""
+        if os.name == "nt":
+            command = "start "
+        elif os.name == "posix":
+            command = "open "
+        else:
+            command = "xdg-open "
+        call(command + folder + "/" + filename + ".png", shell=True)
 
 
 def from_file(filename, folder="games", fileext=".game", validate=True):
