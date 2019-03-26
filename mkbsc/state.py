@@ -62,24 +62,43 @@ class State:
         """Return a compact but still quite readable representation of the knowledge"""
         def __wrap(state, l):
             if len(state.knowledges) > 1:
+                print("Wrap")
                 return "(" + state.epistemic_nice(l + 1) + ")"
             else:
+                print("Wrap : " + str(state.knowledges[0]))
                 return str(state.knowledges[0])
+        # Outer level of player knowledge
         if level == 0:
             if len(self.knowledges) > 1:
+                # More than one epistemic level
+                print("Level = 0 : len > 1")
                 return "\n".join(["{" + ", ".join([state.epistemic_nice(level + 1) for state in knowledge]) + "}" for knowledge in self.knowledges])
             else:
+                # One epistemic level
                 if type(self.knowledges[0]) is frozenset:
+                    # ??
+                    print("Level = 0 : len <= 1 : is frozenset")
                     return "{" + ", ".join([state.epistemic_nice(level + 1) for state in self.knowledges[0]]) + "}"
                 else:
+                    # Only used when one epistemic level
+                    print("Level = 0 : len <= 1 : not frozenset")
+                    print("Level = 0 : " + str(self.knowledges[0]))
                     return str(self.knowledges[0])
+        # Inner level
         else:
             if len(self.knowledges) > 1:
+                # Used when more than two epistemic levels in total
+                print("Level > 0  : len > 1")
                 return "-".join(["".join([__wrap(state, level) for state in knowledge]) for knowledge in self.knowledges])
             else:
                 if type(self.knowledges[0]) is frozenset:
+                    # ??
+                    print("Level > 0 : len <= 1 : is frozenset")
                     return "{" + ", ".join([state.epistemic_nice(level + 1) for state in self.knowledges[0]]) + "}"
                 else:
+                    # Only used when two epistemic levels
+                    print("Level > 0 : len <= 1 : not frozenset")
+                    print("Level > 0 : " + str(self.knowledges[0]))
                     return str(self.knowledges[0])
                 
     def epistemic_isocheck(self):
