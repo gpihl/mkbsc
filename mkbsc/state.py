@@ -1,3 +1,7 @@
+import networkx as nx
+from networkx.drawing.nx_pydot          import to_pydot
+from subprocess import call
+
 class State:
     """Represents a game state, with separate knowledge for each player
 
@@ -15,6 +19,7 @@ class State:
         ex. s = State(1)"""
         
         self.knowledges = tuple(knowledges)
+        
     def __getitem__(self, index):
         """Get the knowledge of the specified player
 
@@ -58,6 +63,45 @@ class State:
             
         return s
     
+    def epistemic_tree(self, level=0, numPlayers=2):
+        """This function makes a tree"""
+        G = nx.Graph()
+
+        for firstState in self.knowledges[0]:
+            #print(firstState)
+            
+            initial_state = None
+
+            # TODO: Make less bad
+            for secondState in firstState:
+                initial_state = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
+                G.add_node(initial_state, label=initial_state)
+                print(78)
+                break
+
+            playerCounter = 0
+
+            for secondState in firstState:
+                if not playerCounter % numPlayers == 0:
+                    knowledge = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
+                    print(knowledge)
+                    G.add_node(knowledge, label=knowledge)
+                    G.add_edge(initial_state, knowledge)
+                    #G[initial_state][knowledge]["player"] = 1
+                    
+                playerCounter += 1
+                #print(secondState)
+        print(G.nodes())
+        print(G.edges())
+
+        arr = to_pydot(G).to_string()
+
+        with open("pictures/hack.dot", "w") as dotfile:
+            dotfile.write(arr)
+
+        call(["dot", "-Tpng", "pictures/hack.dot", "-o", "pictures/hack.png"])
+
+
     def epistemic_nice(self, level=0):
         """Return a compact but still quite readable representation of the knowledge"""
         def __wrap(state, l):
@@ -104,7 +148,7 @@ class State:
     def epistemic_isocheck(self):
         """Return the most compact representation, only containing which states in the base game are possible in this state"""
         return ", ".join([str(state.knowledges[0]) for state in self.consistent_base()])
-        
+
     def consistent_base(self):
         """Return the states in the base game that are possible in this state
 
