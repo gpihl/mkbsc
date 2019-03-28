@@ -63,10 +63,17 @@ class State:
             
         return s
     
-    def epistemic_tree(self, level=0, numPlayers=2):
+    def epistemic_tree(self, level=0, numPlayers=2, player=0):
         """This function makes a tree"""
         G = nx.Graph()
+        indexedKnowledges = tuple(self.knowledges[player])
+        if len(indexedKnowledges[0].knowledges) == 1:
+            tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexedKnowledges]) + "}"
+            print(tree_node)
+        #G["graph"]["nodesep"] = 0.5
+        #["graph"][key] = default_attributes[key]
 
+        '''
         for firstState in self.knowledges[0]:
             #print(firstState)
             
@@ -76,7 +83,6 @@ class State:
             for secondState in firstState:
                 initial_state = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
                 G.add_node(initial_state, label=initial_state)
-                print(78)
                 break
 
             playerCounter = 0
@@ -84,15 +90,13 @@ class State:
             for secondState in firstState:
                 if not playerCounter % numPlayers == 0:
                     knowledge = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
-                    print(knowledge)
                     G.add_node(knowledge, label=knowledge)
                     G.add_edge(initial_state, knowledge)
-                    #G[initial_state][knowledge]["player"] = 1
+                    G[initial_state][knowledge]["label"] = 1
                     
                 playerCounter += 1
-                #print(secondState)
-        print(G.nodes())
-        print(G.edges())
+        #print(G.nodes())
+        #print(G.edges())
 
         arr = to_pydot(G).to_string()
 
@@ -100,6 +104,7 @@ class State:
             dotfile.write(arr)
 
         call(["dot", "-Tpng", "pictures/hack.dot", "-o", "pictures/hack.png"])
+        '''
 
 
     def epistemic_nice(self, level=0):
