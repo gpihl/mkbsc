@@ -70,6 +70,8 @@ class State:
         if len(indexedKnowledges[0].knowledges) == 1:
             tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexedKnowledges]) + "}"
             print(tree_node)
+            G.add_node(str(id(self)), label=tree_node)
+            # TODO we might need to return the node here so we can connect an edge to it
         #G["graph"]["nodesep"] = 0.5
         #["graph"][key] = default_attributes[key]
 
