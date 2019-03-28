@@ -63,17 +63,20 @@ class State:
             
         return s
     
-    def epistemic_tree(self, level=0, numPlayers=2, player=0):
+    def epistemic_tree(self, level=0, numPlayers=2, player=):
         """This function makes a tree"""
+
+        # TODO if we do this function recursively we will have to make a separate mfunction where we create the graph
         G = nx.Graph()
+        self.parse_knowledge(level, numPlayers, player, G)
+
+    def parse_knowledge(self, level, numplayers, player, G):
         indexedKnowledges = tuple(self.knowledges[player])
         if len(indexedKnowledges[0].knowledges) == 1:
             tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexedKnowledges]) + "}"
             print(tree_node)
             G.add_node(str(id(self)), label=tree_node)
             # TODO we might need to return the node here so we can connect an edge to it
-        #G["graph"]["nodesep"] = 0.5
-        #["graph"][key] = default_attributes[key]
 
         '''
         for firstState in self.knowledges[0]:
