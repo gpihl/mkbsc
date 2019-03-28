@@ -63,7 +63,7 @@ class State:
             
         return s
     
-    def epistemic_tree(self, level=0, numPlayers=2, player=):
+    def epistemic_tree(self, level=0, numPlayers=2, player=0):
         """This function makes a tree"""
 
         G = nx.Graph()
