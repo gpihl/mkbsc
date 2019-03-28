@@ -66,7 +66,6 @@ class State:
     def epistemic_tree(self, level=0, numPlayers=2, player=):
         """This function makes a tree"""
 
-        # TODO if we do this function recursively we will have to make a separate mfunction where we create the graph
         G = nx.Graph()
         self.parse_knowledge(level, numPlayers, player, G)
 
