@@ -65,12 +65,18 @@ class State:
         return s
     
     def epistemic_tree(self, level=0, num_players=2, player=0):
-        """This function makes a tree"""
+        """This function creates an e-tree for a specific player based on the knowledge gained from the
+        MKBSC-algorithm. """
 
+        # The e-tree
         G = nx.Graph()
 
         # Find the root node
+        # Allows for indexing of state knowledges
         indexed_knowledges = tuple(self.knowledges[player])
+
+        # When the length of the knowledge = 1, we have found a state from
+        # the original game G
         while not len(indexed_knowledges[0].knowledges) == 1:
             indexed_knowledges = tuple(indexed_knowledges[0].knowledges[player])
 
@@ -78,8 +84,10 @@ class State:
         tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
         G.add_node("root_node", label=tree_node, parent=None)
 
+        # Add the rest of the nodes recursively 
         self.parse_knowledge(None, num_players, player, G)
 
+        # Create a file
         arr = to_pydot(G).to_string()
         with open("pictures/test.dot", "w") as dotfile:
             dotfile.write(arr)
@@ -88,18 +96,28 @@ class State:
 
 
     def parse_knowledge(self, parent, num_players, player, G):
+        '''Function for recursively building the e-tree'''
 
         def create_id(node, parent):
-
+            '''This function generates a uniqe id for a node in the e-tree.
+               The same node in the tree will always get the same id'''
+            
+            # The node id ends with the label of the node
             hash_string = node
+
+            # Iterate until the root node has been found
+            # and for every node passed on the way, the
+            # label is added at the beginning of the hash string
             while not G.node[parent]["parent"] == None:
                 hash_string = str(G.node[parent]["label"]) + hash_string
                 parent = G.node[parent]["parent"]
             
+            # Hash the string
             hash_string = str(G.node[parent]["label"]) + hash_string
             node_id = hashlib.sha1(str.encode(hash_string)).hexdigest()
             return node_id
         
+
         # Allows for indexing of state knowledges
         indexed_knowledges = tuple(self.knowledges[player])
 
@@ -112,7 +130,7 @@ class State:
                 return node_id
             else:
                 return "root_node"
-
+        
         else:
             # Add parent node
             parent_node = indexed_knowledges[0].parse_knowledge(parent, num_players, player, G)
