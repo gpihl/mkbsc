@@ -1,4 +1,5 @@
 import networkx as nx
+import hashlib
 from networkx.drawing.nx_pydot          import to_pydot
 from subprocess import call
 
@@ -63,21 +64,115 @@ class State:
             
         return s
     
-    def epistemic_tree(self, level=0, numPlayers=2, player=0):
+    def epistemic_tree(self, level=0, num_players=2, player=0):
         """This function makes a tree"""
 
         G = nx.Graph()
-        self.parse_knowledge(level, numPlayers, player, G)
 
-    def parse_knowledge(self, level, numplayers, player, G):
-        indexedKnowledges = tuple(self.knowledges[player])
-        if len(indexedKnowledges[0].knowledges) == 1:
-            tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexedKnowledges]) + "}"
-            print(tree_node)
-            G.add_node(str(id(self)), label=tree_node)
+        # Find the root node
+        indexed_knowledges = tuple(self.knowledges[player])
+        while not len(indexed_knowledges[0].knowledges) == 1:
+            indexed_knowledges = tuple(indexed_knowledges[0].knowledges[player])
+
+        # Add the root node
+        tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
+        G.add_node("root_node", label=tree_node, parent=None)
+
+        self.parse_knowledge(None, num_players, player, G)
+
+        arr = to_pydot(G).to_string()
+        with open("pictures/test.dot", "w") as dotfile:
+            dotfile.write(arr)
+
+        call(["dot", "-Tpng", "pictures/test.dot", "-o", "pictures/test.png"])
+
+
+    def parse_knowledge(self, parent, num_players, player, G):
+
+        def create_id(node, parent):
+
+            hash_string = node
+            while not G.node[parent]["parent"] == None:
+                hash_string = str(G.node[parent]["label"]) + hash_string
+                parent = G.node[parent]["parent"]
+            
+            hash_string = str(G.node[parent]["label"]) + hash_string
+            node_id = hashlib.sha1(str.encode(hash_string)).hexdigest()
+            return node_id
+        
+        # Allows for indexing of state knowledges
+        indexed_knowledges = tuple(self.knowledges[player])
+
+        # Base case when a tree node is found
+        if len(indexed_knowledges[0].knowledges) == 1:
+            tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
+            if not parent == None:
+                node_id = create_id(tree_node, parent)
+                G.add_node(node_id, label=tree_node, parent=parent)
+                return node_id
+            else:
+                return "root_node"
+
+        else:
+            # Add parent node
+            parent_node = indexed_knowledges[0].parse_knowledge(parent, num_players, player, G)
+
+            # Add child nodes to parent node
+            for state in indexed_knowledges:
+                for p in range(num_players):
+                    # Check state for all players except for the current player
+                    if p == player:
+                        continue
+                    child_node = state.parse_knowledge(parent_node, num_players, p, G)
+                    G.add_edge(parent_node, child_node, label=p)
+                    
+            return parent_node
+
+    
+    '''
+    def epistemic_tree(self, level=0, num_players=2, player=0):
+        """This function makes a tree"""
+
+        G = nx.Graph()
+        counter = collections.Counter()
+        counter["id"] = 0
+        self.parse_knowledge(counter, num_players, player, G)
+        print(G.nodes(data=True))
+
+    def parse_knowledge(self, counter, num_players, player, G):
+
+        # Allows for indexing of state knowledges
+        indexed_knowledges = tuple(self.knowledges[player])
+        print("Indexed knowledge", indexed_knowledges)
+
+        # Base case when a tree node is found
+        if len(indexed_knowledges[0].knowledges) == 1:
+            tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
+            print("tree node: ", tree_node)
+            G.add_node(str(counter["id"]), label=tree_node)
+            counter["id"] += 1
+            return G.node[counter["id"] - 1]
             # TODO we might need to return the node here so we can connect an edge to it
 
-        '''
+        else:
+            # Add parent node and remove from knowledge tuple
+            parent_node = indexed_knowledges[0].parse_knowledge(counter, num_players, player, G)
+            # TODO The node should be returned here
+
+            # Add child nodes
+            for state in indexed_knowledges:
+                for p in range(num_players):
+                    # Check state for all players except for the current player
+                    if p == player:
+                        continue
+                    print("state", state)
+                    child_node = state.parse_knowledge(counter, num_players, p, G)
+                    G.add_edge(parent_node, child_node, label=p)
+                    
+                        # TODO The node should be returned here
+                        # TODO add edges from parentnode to child nodes.
+            
+        
         for firstState in self.knowledges[0]:
             #print(firstState)
             
