@@ -128,125 +128,47 @@ class State:
                     
             return parent_node
 
-    
-    '''
-    def epistemic_tree(self, level=0, num_players=2, player=0):
-        """This function makes a tree"""
-
-        G = nx.Graph()
-        counter = collections.Counter()
-        counter["id"] = 0
-        self.parse_knowledge(counter, num_players, player, G)
-        print(G.nodes(data=True))
-
-    def parse_knowledge(self, counter, num_players, player, G):
-
-        # Allows for indexing of state knowledges
-        indexed_knowledges = tuple(self.knowledges[player])
-        print("Indexed knowledge", indexed_knowledges)
-
-        # Base case when a tree node is found
-        if len(indexed_knowledges[0].knowledges) == 1:
-            tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
-            print("tree node: ", tree_node)
-            G.add_node(str(counter["id"]), label=tree_node)
-            counter["id"] += 1
-            return G.node[counter["id"] - 1]
-            # TODO we might need to return the node here so we can connect an edge to it
-
-        else:
-            # Add parent node and remove from knowledge tuple
-            parent_node = indexed_knowledges[0].parse_knowledge(counter, num_players, player, G)
-            # TODO The node should be returned here
-
-            # Add child nodes
-            for state in indexed_knowledges:
-                for p in range(num_players):
-                    # Check state for all players except for the current player
-                    if p == player:
-                        continue
-                    print("state", state)
-                    child_node = state.parse_knowledge(counter, num_players, p, G)
-                    G.add_edge(parent_node, child_node, label=p)
-                    
-                        # TODO The node should be returned here
-                        # TODO add edges from parentnode to child nodes.
-            
-        
-        for firstState in self.knowledges[0]:
-            #print(firstState)
-            
-            initial_state = None
-
-            # TODO: Make less bad
-            for secondState in firstState:
-                initial_state = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
-                G.add_node(initial_state, label=initial_state)
-                break
-
-            playerCounter = 0
-
-            for secondState in firstState:
-                if not playerCounter % numPlayers == 0:
-                    knowledge = "{" + ", ".join([str(state.knowledges[0]) for state in secondState]) + "}"
-                    G.add_node(knowledge, label=knowledge)
-                    G.add_edge(initial_state, knowledge)
-                    G[initial_state][knowledge]["label"] = 1
-                    
-                playerCounter += 1
-        #print(G.nodes())
-        #print(G.edges())
-
-        arr = to_pydot(G).to_string()
-
-        with open("pictures/hack.dot", "w") as dotfile:
-            dotfile.write(arr)
-
-        call(["dot", "-Tpng", "pictures/hack.dot", "-o", "pictures/hack.png"])
-        '''
-
-
     def epistemic_nice(self, level=0):
         """Return a compact but still quite readable representation of the knowledge"""
         def __wrap(state, l):
             if len(state.knowledges) > 1:
-                print("Wrap")
+                #print("Wrap")
                 return "(" + state.epistemic_nice(l + 1) + ")"
             else:
-                print("Wrap : " + str(state.knowledges[0]))
+                #print("Wrap : " + str(state.knowledges[0]))
                 return str(state.knowledges[0])
         # Outer level of player knowledge
         if level == 0:
             if len(self.knowledges) > 1:
                 # More than one epistemic level
-                print("Level = 0 : len > 1")
+                #print("Level = 0 : len > 1")
                 return "\n".join(["{" + ", ".join([state.epistemic_nice(level + 1) for state in knowledge]) + "}" for knowledge in self.knowledges])
             else:
                 # One epistemic level
                 if type(self.knowledges[0]) is frozenset:
                     # ??
-                    print("Level = 0 : len <= 1 : is frozenset")
+                    #print("Level = 0 : len <= 1 : is frozenset")
                     return "{" + ", ".join([state.epistemic_nice(level + 1) for state in self.knowledges[0]]) + "}"
                 else:
                     # Only used when one epistemic level
-                    print("Level = 0 : len <= 1 : not frozenset")
-                    print("Level = 0 : " + str(self.knowledges[0]))
+                    #print("Level = 0 : len <= 1 : not frozenset")
+                    #print("Level = 0 : " + str(self.knowledges[0]))
                     return str(self.knowledges[0])
         # Inner level
         else:
             if len(self.knowledges) > 1:
                 # Used when more than two epistemic levels in total
-                print("Level > 0  : len > 1")
+                #print("Level > 0  : len > 1")
                 return "-".join(["".join([__wrap(state, level) for state in knowledge]) for knowledge in self.knowledges])
             else:
                 if type(self.knowledges[0]) is frozenset:
                     # ??
-                    print("Level > 0 : len <= 1 : is frozenset")
+                    #print("Level > 0 : len <= 1 : is frozenset")
                     return "{" + ", ".join([state.epistemic_nice(level + 1) for state in self.knowledges[0]]) + "}"
                 else:
                     # Only used when two epistemic levels
-                    print("Level > 0 : len <= 1 : not frozenset")
-                    print("Level > 0 : " + str(self.knowledges[0]))
+                    #print("Level > 0 : len <= 1 : not frozenset")
+                    #print("Level > 0 : " + str(self.knowledges[0]))
                     return str(self.knowledges[0])
                 
     def epistemic_isocheck(self):
