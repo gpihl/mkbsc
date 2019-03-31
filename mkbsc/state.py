@@ -71,20 +71,7 @@ class State:
         # The e-tree
         G = nx.Graph()
 
-        # Find the root node
-        # Allows for indexing of state knowledges
-        indexed_knowledges = tuple(self.knowledges[player])
-
-        # When the length of the knowledge = 1, we have found a state from
-        # the original game G
-        while not len(indexed_knowledges[0].knowledges) == 1:
-            indexed_knowledges = tuple(indexed_knowledges[0].knowledges[player])
-
-        # Add the root node
-        tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
-        G.add_node("root_node", label=tree_node, parent=None)
-
-        # Add the rest of the nodes recursively 
+        # Add the nodes recursively 
         self.parse_knowledge(None, num_players, player, G)
 
         # Create a file
@@ -108,12 +95,11 @@ class State:
             # Iterate until the root node has been found
             # and for every node passed on the way, the
             # label is added at the beginning of the hash string
-            while not G.node[parent]["parent"] == None:
+            while not parent == None:
                 hash_string = str(G.node[parent]["label"]) + hash_string
                 parent = G.node[parent]["parent"]
             
             # Hash the string
-            hash_string = str(G.node[parent]["label"]) + hash_string
             node_id = hashlib.sha1(str.encode(hash_string)).hexdigest()
             return node_id
         
@@ -123,14 +109,14 @@ class State:
 
         # Base case when a tree node is found
         if len(indexed_knowledges[0].knowledges) == 1:
+
             tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
-            if not parent == None:
-                node_id = create_id(tree_node, parent)
-                G.add_node(node_id, label=tree_node, parent=parent)
-                return node_id
-            else:
-                return "root_node"
-        
+            node_id = create_id(tree_node, parent)
+            G.add_node(node_id, label=tree_node, parent=parent)
+            
+            return node_id
+            
+
         else:
             # Add parent node
             parent_node = indexed_knowledges[0].parse_knowledge(parent, num_players, player, G)
