@@ -64,7 +64,7 @@ class State:
             
         return s
     
-    def epistemic_tree(self, level=0, num_players=2, player=0):
+    def epistemic_tree(self, player=0):
         """This function creates an e-tree for a specific player based on the knowledge gained from the
         MKBSC-algorithm. """
 
@@ -72,7 +72,7 @@ class State:
         G = nx.Graph()
 
         # Add the nodes recursively 
-        self.parse_knowledge(None, num_players, player, G)
+        self.parse_knowledge(None, player, G)
 
         # Create a file
         # TODO add functionality for naming system of files for later import into game graph
@@ -84,7 +84,7 @@ class State:
         # TODO return something meaningfull the to_dot-function can use to find the correct picture for each node
 
 
-    def parse_knowledge(self, parent, num_players, player, G):
+    def parse_knowledge(self, parent, player, G):
         '''Function for recursively building the e-tree'''
 
         def create_id(node, parent):
@@ -121,22 +121,20 @@ class State:
             # Return the node ID so it can be used to add edges and child nodes
             return node_id
             
-
         else:
             # Add parent node
-            parent_node = indexed_knowledges[0].parse_knowledge(parent, num_players, player, G)
+            parent_node = indexed_knowledges[0].parse_knowledge(parent, player, G)
 
             # Add child nodes to parent node
             for state in indexed_knowledges:
-                print(len(state.knowledges))
-                for p in range(num_players):
+                for p in range(len(state.knowledges)):
 
                     # Check state for all players except for the current player
                     if p == player:
                         continue
                     
                     # Add child nodes and edges to the parent node
-                    child_node = state.parse_knowledge(parent_node, num_players, p, G)
+                    child_node = state.parse_knowledge(parent_node, p, G)
                     G.add_edge(parent_node, child_node, label=p)
 
             # Return the parent node        
