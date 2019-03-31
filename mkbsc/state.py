@@ -75,11 +75,13 @@ class State:
         self.parse_knowledge(None, num_players, player, G)
 
         # Create a file
+        # TODO add functionality for naming system of files for later import into game graph
         arr = to_pydot(G).to_string()
         with open("pictures/test.dot", "w") as dotfile:
             dotfile.write(arr)
 
         call(["dot", "-Tpng", "pictures/test.dot", "-o", "pictures/test.png"])
+        # TODO return something meaningfull the to_dot-function can use to find the correct picture for each node
 
 
     def parse_knowledge(self, parent, num_players, player, G):
@@ -107,13 +109,16 @@ class State:
         # Allows for indexing of state knowledges
         indexed_knowledges = tuple(self.knowledges[player])
 
-        # Base case when a tree node is found
+        # Base case when a tree node for the e-tree is found
         if len(indexed_knowledges[0].knowledges) == 1:
 
+            # Create the label for the node, give it a unique ID and add it to the graph
+            # If the node is already in the graph nothing will happen
             tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
             node_id = create_id(tree_node, parent)
             G.add_node(node_id, label=tree_node, parent=parent)
             
+            # Return the node ID so it can be used to add edges and child nodes
             return node_id
             
 
@@ -123,13 +128,18 @@ class State:
 
             # Add child nodes to parent node
             for state in indexed_knowledges:
+                print(len(state.knowledges))
                 for p in range(num_players):
+
                     # Check state for all players except for the current player
                     if p == player:
                         continue
+                    
+                    # Add child nodes and edges to the parent node
                     child_node = state.parse_knowledge(parent_node, num_players, p, G)
                     G.add_edge(parent_node, child_node, label=p)
-                    
+
+            # Return the parent node        
             return parent_node
 
     def epistemic_nice(self, level=0):
