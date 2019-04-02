@@ -64,24 +64,35 @@ class State:
             
         return s
     
-    def epistemic_tree(self, player=0):
+    def epistemic_tree(self):
         """This function creates an e-tree for a specific player based on the knowledge gained from the
         MKBSC-algorithm. """
 
-        # The e-tree
-        G = nx.Graph()
+        # Build one tree for every player
+        player = 0
+        call_string = []
 
-        # Add the nodes recursively 
-        self.parse_knowledge(None, player, G)
+        for state in self.knowledges:
+            # The e-tree
+            G = nx.Graph()
 
-        # Create a file
-        # TODO add functionality for naming system of files for later import into game graph
-        arr = to_pydot(G).to_string()
-        with open("pictures/test.dot", "w") as dotfile:
-            dotfile.write(arr)
+            # Add the nodes recursively 
+            self.parse_knowledge(None, player, G)
 
-        call(["dot", "-Tpng", "pictures/test.dot", "-o", "pictures/test.png"])
-        # TODO return something meaningfull the to_dot-function can use to find the correct picture for each node
+            # Create a file
+            arr = to_pydot(G).to_string()
+            with open("pictures/temp/" + str(player) + ".dot", "w") as dotfile:
+                dotfile.write(arr)
+
+            call(["dot", "-Tpng", "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".png"])
+
+            call_string.append("pictures/temp/" + str(player) + ".png")
+            player += 1
+        
+        # Combine images
+        image_name = "pictures/temp/" + str(id(self)) + ".png"
+        call(["convert", "+append"] + call_string + [image_name])
+        return image_name
 
 
     def parse_knowledge(self, parent, player, G):

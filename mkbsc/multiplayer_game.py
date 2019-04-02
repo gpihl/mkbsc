@@ -235,12 +235,17 @@ class MultiplayerGame:
                 G[edge[0]][edge[1]][edge[2]]["label"] = ""
                 
         
-        epistemic_functions = {"verbose": State.epistemic_verbose, "nice": State.epistemic_nice, "isocheck": State.epistemic_isocheck}
+        epistemic_functions = {"verbose": State.epistemic_verbose, "nice": State.epistemic_nice, 
+                                "isocheck": State.epistemic_isocheck, "e-tree": State.epistemic_tree}
         if epistemic:
             func = epistemic_functions[epistemic.lower()]
             for state in G.nodes():
-                G.node[state]["label"] = func(state)
-            
+                if epistemic == "e-tree":
+                    G.node[state]["image"] = func(state)
+                    G.node[state]["label"] = ""
+                else:
+                    G.node[state]["label"] = func(state)
+
         G.add_node("hidden", shape="none", label="")
         G.add_edge("hidden", self.initial_state)
 
@@ -250,7 +255,7 @@ class MultiplayerGame:
                     target_states[i:i+1] = _lookup_by_base(self.states, target_states[i])
             for target_state in target_states:
                 G.node[target_state]["shape"] = "doublecircle"
-        
+
         #if group_observations is None:
         #    group_observations = (self.player_count == 1)
         
@@ -269,9 +274,9 @@ class MultiplayerGame:
                         for start, end in combinations(observation, 2):
                             G.add_edge(start, end, style="dashed", label="~" + str(player) if self.player_count > 1 else "",
                                 arrowhead="none", colorscheme=color_scheme, color=colorfunc(player), constraint=observations_constrain)
-            
-            State.compact_representation = True        
+            State.compact_representation = True
             arr = to_pydot(G).to_string().split("\n")
+                
             if group_by_base:
                 groups = {}
                 for state in self.states:
