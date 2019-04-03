@@ -98,18 +98,18 @@ class State:
     def parse_knowledge(self, parent, player, G):
         '''Function for recursively building the e-tree'''
 
-        def create_id(node, parent):
+        def create_id(node, parent, player):
             '''This function generates a uniqe id for a node in the e-tree.
                The same node in the tree will always get the same id'''
             
             # The node id ends with the label of the node
-            hash_string = node
+            hash_string = node + str(player)
 
             # Iterate until the root node has been found
             # and for every node passed on the way, the
             # label is added at the beginning of the hash string
             while not parent == None:
-                hash_string = str(G.node[parent]["label"]) + hash_string
+                hash_string = str(G.node[parent]["label"]) + str(G.node[parent]["player"]) + hash_string
                 parent = G.node[parent]["parent"]
             
             # Hash the string
@@ -126,8 +126,8 @@ class State:
             # Create the label for the node, give it a unique ID and add it to the graph
             # If the node is already in the graph nothing will happen
             tree_node = "{" + ", ".join([str(state.knowledges[0]) for state in indexed_knowledges]) + "}"
-            node_id = create_id(tree_node, parent)
-            G.add_node(node_id, label=tree_node, parent=parent)
+            node_id = create_id(tree_node, parent, player)
+            G.add_node(node_id, label=tree_node, parent=parent, player=player)
             
             # Return the node ID so it can be used to add edges and child nodes
             return node_id
