@@ -215,7 +215,20 @@ class State:
             states = set.intersection(*[set.intersection(*[set(state[player]) for player in range(len(self.knowledges))]) for state in states])
         
         return states
-    
+
+
+    def epistemic_depth(self, ):
+        """Returns the depth of the graph"""
+        depth = 1
+        indexed_knowledges = tuple(self.knowledges[0])
+
+        while(len(indexed_knowledges[0].knowledges)) != 1:
+            indexed_knowledges = tuple(indexed_knowledges[0].knowledges[0])
+            depth += 1
+
+        return depth
+        
+
     #workaround to make sure the networkx isomorphism check works
     orderable = False
     def __gt__(self, other):

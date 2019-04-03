@@ -1,0 +1,11 @@
+brew install pango
+brew install imagemagick
+brew install wget
+cd /tmp
+wget https://graphviz.gitlab.io/pub/graphviz/stable/SOURCES/graphviz.tar.gz
+tar xvfz graphviz.tar.gz
+cd graphviz-2.40.1/
+rm -rf /usr/local/lib/graphviz
+./configure --includedir=/usr/local/include/graphviz --with-pangocairo=yes
+make -j 8
+make install
