@@ -1,2 +1,4 @@
-networkx
-pydot
+decorator==4.4.0
+networkx==2.2
+pydot==1.4.1
+pyparsing==2.3.1
