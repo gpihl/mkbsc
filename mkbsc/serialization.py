@@ -20,7 +20,7 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
     with open(folder + "/" + filename + ".dot", "w") as dotfile:
         dotfile.write(game.to_dot(epistemic=epistemic, supress_edges=supress_edges, group_observations=group_observations, target_states=target_states, **kwargs))
 
-    call(["dot", "-Tpng", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
+    call(["dot", "-Tpng", "-Gdpi=160", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
     if view:
         command = ""
         if os.name == "nt":
