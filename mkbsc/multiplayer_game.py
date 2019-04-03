@@ -197,6 +197,10 @@ class MultiplayerGame:
         target_states -- the states (or singleton knowledge in states) which should be marked in the rendered graph"""
         
         G = self.graph.copy()
+        # Define width of lines
+        penwidth = self.states[0].epistemic_depth()
+
+
         
         all_joint_actions = set(self.alphabet.permute())
         
@@ -219,12 +223,12 @@ class MultiplayerGame:
                         if edge[2]["action"]:
                             current_attributes = G[edge[0]][edge[1]][edge[2]["action"]]
                             for key in current_attributes:
-                                if key not in ["label", "action", "key"]:
+                                if key not in ["label", "action", "key", "penwidth"]:
                                     total_attributes[key] = current_attributes[key]
                             
                             G.remove_edge(edge[0], edge[1], edge[2]["action"])
                             
-                    G.add_edge(node, neighbor, label=label, key=superaction, action=superaction, **total_attributes)
+                    G.add_edge(node, neighbor, label=label, key=superaction, action=superaction, penwidth = str(penwidth), **total_attributes)
 
         for edge in G.edges(data="action"):
             if edge[0] == edge[1]:
@@ -263,7 +267,7 @@ class MultiplayerGame:
             State.compact_representation = True
             arr = to_pydot(G).to_string().split("\n")
             for player, partitioning in enumerate(self.partitionings):
-                arr[-2:-2] = [observation.to_dot({"style": "dashed", "label": "~" + str(player) if self.player_count > 1 else ""}) for observation in partitioning]
+                arr[-2:-2] = [observation.to_dot({"penwidth": str(penwidth), "style": "dashed", "label": "~" + str(player) if self.player_count > 1 else ""}) for observation in partitioning]
             
             State.compact_representation = False
             return "\n".join(arr)
@@ -272,7 +276,7 @@ class MultiplayerGame:
                 for observation in partitioning:
                     if len(observation) > 1: 
                         for start, end in combinations(observation, 2):
-                            G.add_edge(start, end, style="dashed", label="~" + str(player) if self.player_count > 1 else "",
+                            G.add_edge(start, end, style="dashed", penwidth = str(penwidth), label="~" + str(player) if self.player_count > 1 else "",
                                 arrowhead="none", colorscheme=color_scheme, color=colorfunc(player), constraint=observations_constrain)
             State.compact_representation = True
             arr = to_pydot(G).to_string().split("\n")
