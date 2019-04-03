@@ -5,7 +5,7 @@ from queue      import LifoQueue
 from json       import dumps, loads
 from subprocess import call
 
-import os
+import glob, os
 
 def export(game, filename, view=True, folder="pictures", epistemic="nice", supress_edges=False, group_observations=None, target_states=None, **kwargs):
     """Exports the game as a picture
@@ -17,10 +17,17 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
     group_observations -- if true, the observations will be arranged in marked subgraphs. Only works for singleplayer games
     target_states -- the states (or singleton knowledge in states) which should be marked in the rendered graph"""
     
+    # Remove image files of e-tree nodes from the last run of the program
+    if epistemic == "e-tree":
+        temp_path = "pictures/temp/*"
+        files = glob.glob(temp_path)
+        for f in files:
+            os.remove(f)
+
     with open(folder + "/" + filename + ".dot", "w") as dotfile:
         dotfile.write(game.to_dot(epistemic=epistemic, supress_edges=supress_edges, group_observations=group_observations, target_states=target_states, **kwargs))
 
-    call(["dot", "-Tpng", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
+    call(["dot", "-Tpng", "-Gdpi=160", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
     if view:
         command = ""
         if os.name == "nt":
