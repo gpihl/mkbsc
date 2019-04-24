@@ -198,7 +198,8 @@ class MultiplayerGame:
         
         G = self.graph.copy()
         # Define width of lines
-        penwidth = self.states[0].epistemic_depth()
+        #penwidth = self.states[0].epistemic_depth()
+        penwidth = 1
 
 
         

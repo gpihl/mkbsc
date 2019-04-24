@@ -84,13 +84,13 @@ class State:
             with open("pictures/temp/" + str(player) + ".dot", "w") as dotfile:
                 dotfile.write(arr)
 
-            call(["dot", "-Tpng", "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".png"])
+            call(["dot", "-Teps", "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".eps"])
 
-            call_string.append("pictures/temp/" + str(player) + ".png")
+            call_string.append("pictures/temp/" + str(player) + ".eps")
             player += 1
         
         # Combine images
-        image_name = "pictures/temp/" + str(id(self)) + ".png"
+        image_name = "pictures/temp/" + str(id(self)) + ".eps"
         call(["convert", "+append"] + call_string + [image_name])
         return image_name
 
@@ -119,6 +119,7 @@ class State:
 
         # Allows for indexing of state knowledges
         indexed_knowledges = tuple(self.knowledges[player])
+
 
         # Base case when a tree node for the e-tree is found
         if len(indexed_knowledges[0].knowledges) == 1:

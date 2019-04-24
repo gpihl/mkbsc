@@ -27,7 +27,7 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
     with open(folder + "/" + filename + ".dot", "w") as dotfile:
         dotfile.write(game.to_dot(epistemic=epistemic, supress_edges=supress_edges, group_observations=group_observations, target_states=target_states, **kwargs))
 
-    call(["dot", "-Tpng", "-Gdpi=160", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".png"])
+    call(["dot", "-Teps", "-Gdpi=160", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".eps"])
     if view:
         command = ""
         if os.name == "nt":
@@ -36,7 +36,7 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
             command = "open "
         else:
             command = "xdg-open "
-        call(command + folder + "/" + filename + ".png", shell=True)
+        call(command + folder + "/" + filename + ".eps", shell=True)
 
 
 def from_file(filename, folder="games", fileext=".game", validate=True):
