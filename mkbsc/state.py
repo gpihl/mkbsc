@@ -84,13 +84,13 @@ class State:
             with open("pictures/temp/" + str(player) + ".dot", "w") as dotfile:
                 dotfile.write(arr)
 
-            call(["dot", "-Teps", "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".eps"])
+            call(["dot", "-Teps", "-Gdpi=220","pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".eps"])
 
             call_string.append("pictures/temp/" + str(player) + ".eps")
             player += 1
         
         # Combine images
-        image_name = "pictures/temp/" + str(id(self)) + ".eps"
+        image_name = "pictures/temp/" + str(id(self)) + ".png"
         call(["convert", "+append"] + call_string + [image_name])
         return image_name
 
