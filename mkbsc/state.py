@@ -84,7 +84,9 @@ class State:
             with open("pictures/temp/" + str(player) + ".dot", "w") as dotfile:
                 dotfile.write(arr)
 
+
             call(["dot", "-T" + file, "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + "." + file])
+
 
             call_string.append("pictures/temp/" + str(player) + "." + file)
             player += 1
