@@ -64,7 +64,7 @@ class State:
             
         return s
     
-    def epistemic_tree(self):
+    def epistemic_tree(self, file = "png"):
         """This function creates an e-tree for a specific player based on the knowledge gained from the
         MKBSC-algorithm. """
 
@@ -84,13 +84,13 @@ class State:
             with open("pictures/temp/" + str(player) + ".dot", "w") as dotfile:
                 dotfile.write(arr)
 
-            call(["dot", "-Teps", "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + ".eps"])
+            call(["dot", "-T" + file, "-Gdpi=160", "pictures/temp/" + str(player) + ".dot", "-o", "pictures/temp/" + str(player) + "." + file])
 
-            call_string.append("pictures/temp/" + str(player) + ".eps")
+            call_string.append("pictures/temp/" + str(player) + "." + file)
             player += 1
         
         # Combine images
-        image_name = "pictures/temp/" + str(id(self)) + ".eps"
+        image_name = "pictures/temp/" + str(id(self)) + "." + file
         call(["convert", "+append"] + call_string + [image_name])
         return image_name
 

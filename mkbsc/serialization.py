@@ -7,7 +7,7 @@ from subprocess import call
 
 import glob, os
 
-def export(game, filename, view=True, folder="pictures", epistemic="nice", supress_edges=False, group_observations=None, target_states=None, **kwargs):
+def export(game, filename, view=True, folder="pictures", epistemic="nice", file = "png", supress_edges=False, group_observations=None, target_states=None, **kwargs):
     """Exports the game as a picture
     
     view -- if true, opens the file when done
@@ -27,7 +27,7 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
     with open(folder + "/" + filename + ".dot", "w") as dotfile:
         dotfile.write(game.to_dot(epistemic=epistemic, supress_edges=supress_edges, group_observations=group_observations, target_states=target_states, **kwargs))
 
-    call(["dot", "-Teps", "-Gdpi=160", folder + "/" + filename + ".dot", "-o", folder + "/" + filename + ".eps"])
+    call(["dot", "-T" + file, folder + "/" + filename + ".dot", "-o", folder + "/" + filename + "." + file])
     if view:
         command = ""
         if os.name == "nt":
@@ -36,7 +36,7 @@ def export(game, filename, view=True, folder="pictures", epistemic="nice", supre
             command = "open "
         else:
             command = "xdg-open "
-        call(command + folder + "/" + filename + ".eps", shell=True)
+        call(command + folder + "/" + filename + "." + file, shell=True)
 
 
 def from_file(filename, folder="games", fileext=".game", validate=True):
