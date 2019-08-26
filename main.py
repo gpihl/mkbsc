@@ -4,30 +4,42 @@ from mkbsc import MultiplayerGame, iterate_until_isomorphic, \
                   export, to_string, from_string, to_file, from_file
 
 #states
-L = [0, 1, 2]
+L = ["start", "hole", "no hole", "win", "lose"]
+
 #initial state
-L0 = 0
+L0 = "start"
+
 #action alphabet
-Sigma = (("w", "p"), ("w", "p"))
+Sigma = (("G", "P", "D"), ("G", "P", "D"))
+
 #action labeled transitions
 Delta = [
-    (0, ("p", "p"), 0), (0, ("w", "w"), 0),
-    (0, ("w", "p"), 1), (0, ("p", "w"), 2),
-    (1, ("p", "p"), 1), (1, ("w", "w"), 1),
-    (1, ("w", "p"), 2), (1, ("p", "w"), 0),
-    (2, ("p", "p"), 2), (2, ("w", "w"), 2),
-    (2, ("w", "p"), 0), (2, ("p", "w"), 1)
+    ("start", ("G", "G"), "hole"), 
+    ("start", ("G", "G"), "no hole"),
+    ("hole", ("D", "D"), "hole"), 
+    ("hole", ("P", "P"), "win"),
+    ("hole", ("P", "D"), "lose"),
+    ("hole", ("D", "P"), "lose"),
+    ("no hole", ("D", "D"), "hole"),
+    ("no hole", ("D", "P"), "lose"),
+    ("no hole", ("P", "D"), "lose"),
+    ("hole", ("P", "P"), "lose"),
 ]
 #observation partitioning
 Obs = [
-    [[0, 1], [2]],
-    [[0, 2], [1]]
+    [["start"], ["hole", "no hole"], ["win"], ["lose"]],
+    [["start"], ["hole"], ["no hole"], ["win"], ["lose"]]
 ]
 
-#G is a MultiplayerGame-object, and so are GK and GK0
+#G is a Multiplayer Game-object, and so are GK and GK0
 G = MultiplayerGame.create(L, L0, Sigma, Delta, Obs)
 GK = G.KBSC()
-GK0 = GK.project(0)
+G2K = GK.KBSC()
 
-#export the GK game to ./pictures/GK.png
-export(GK, "GK")
+# We set epistemic to e-tree to generate e-trees as a representation of the knowledge in the game graph 
+export(G2K, "G2K", epistemic = "e-tree", file = "eps")
+
+
+#print(test)
+#to_file(GK, "GK")
+
