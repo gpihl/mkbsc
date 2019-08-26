@@ -1,4 +1,13 @@
+# *** Updated version by Lara Rostami and Erik Handberg *** 
+We have added a functionality to this tool, making it possible to draw e-trees, a different way of visualizing knowledge in a certain state in a multiplayer game of imperfect information.
+
+## Additional Requirements
+Our extension also uses the following external programs:
+ - Image Magic(http://www.imagemagick.org/script/download.php), which can be installed from their website.
+
+
 # Multiplayer Knowledge Based Subset Construct
+
 We study a multiplayer version of the traditional KBSC and implement it in Python 3.
 
 Authors: August Jacobsson & Helmer Nylén
