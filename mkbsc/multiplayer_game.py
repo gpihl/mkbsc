@@ -170,6 +170,24 @@ class MultiplayerGame:
 
         return MultiplayerGame.create(L, L0, Sigma, Delta, Obs)
 
+    def stable(self):
+        if (self.isomorphic(self.KBSC(), consider_observations=True)):
+            return True
+        else:
+            return False
+
+    def KBSC_until_stable(self, max_iterations):
+        i = 0
+        while not self.stable():
+            i += 1
+            self = self.KBSC()
+            if i >= max_iterations:
+                print("Did not stabilize after " + str(i) + " iterations.")
+                return (self, -1)
+
+        print("Stabilized after " + str(i) + " iterations.")
+        return (self, i)
+
     def _create_from_serialized(states, initial_state, alphabet, transitions, state_groupings, validate=True, **attributes):
         """Create a new game from serialized data and validate it"""
         

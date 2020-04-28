@@ -61,9 +61,116 @@ class State:
         for player, knowledge in enumerate(self.knowledges):
             s += State.__indent * level + "Player " + str(player) + " knows:\n"
             s += (State.__indent * (level + 1) + "or\n").join([state.epistemic(level + 1) for state in knowledge])
-            
+
         return s
-    
+
+    def _node_str(self, G, node):
+        return "(" + str(G.nodes[node]['player']) + ", " + G.nodes[node]['label'] + ")\t" + node[:5]
+
+    def _edge_str(self, G, edge):
+        return self._node_str(G, edge[0]) + "\t" + self._node_str(G, edge[1]) # + "\t\t" + edge[0][:5] + "\t" + edge[1][:5]
+
+    def _epistemic_subtree_equals(self, G, node1, node2):
+        # print("\t\tComparing subtrees starting from:")
+        # print("\t\t\t" + node1[:5])
+        # print("\t\t\t" + node2[:5])
+
+        queue1 = [node1]
+        queue2 = [node2]
+
+        while len(queue1) != 0 and len(queue2) != 0:
+            curr1 = queue1[0]
+            curr2 = queue2[0]
+
+            if (G.nodes[curr1]['label'] != G.nodes[curr2]['label']) or (G.nodes[curr1]['player'] != G.nodes[curr2]['player']):
+                # print("\t\tThese nodes did not match:")
+                # print("\t\t\t" + self._node_str(G, curr1))
+                # print("\t\t\t" + self._node_str(G, curr2))
+                return False
+
+            queue1 = queue1[1:]
+            queue2 = queue2[1:]
+            neighbors1 = list(G.neighbors(curr1))
+            neighbors2 = list(G.neighbors(curr2))
+
+            if len(neighbors1) == 0 or len(neighbors2) == 0:
+                # print("\t\tTrees match!")
+                return True
+
+            if len(neighbors1) != len(neighbors2):
+                # print("\t\tDifferent number of children")
+                return False
+
+            for i in range(len(neighbors1)):
+                n1 = neighbors1[i]
+                n2 = neighbors2[i]
+                queue1.append(n1)
+                queue2.append(n2)
+
+        # print("\t\tTrees match!")
+        return True
+
+    def _epistemic_nodes_at_depth(self, G, depth):
+        root = list(G.edges)[0][0]
+        current_depth = [root]
+        next_depth = []
+        while depth != 0:
+            for n in current_depth:
+                for m in G.neighbors(n):
+                    next_depth.append(m)
+
+            current_depth = next_depth
+            next_depth = []
+            depth -= 1
+
+        return current_depth
+
+    def _get_epistemic_depth(self, G, node):
+        depth = 0
+        nodes_at_depth = set(self._epistemic_nodes_at_depth(G, depth))
+        while len(nodes_at_depth) > 0:
+            if node in nodes_at_depth:
+                return depth
+            depth +=1
+            nodes_at_depth = set(self._epistemic_nodes_at_depth(G, depth))
+
+
+    def _has_recursive_ancestor(self, G, node):
+        # print("\tChecking to see if leaf has recursive ancestor: " + self._node_str(G, node))
+        depth = 0
+        node_depth = self._get_epistemic_depth(G, node)
+
+        while depth < node_depth:
+            nodes = self._epistemic_nodes_at_depth(G, depth)
+            for n in nodes:
+                if self._epistemic_subtree_equals(G, node, n):
+                    return True
+            depth += 1
+
+        return False
+
+    def epistemic_trees_recursive_at_depth(self, depth):
+        player = 0
+        res = True
+        for state in self.knowledges:
+            # print("CHECKING IF TREE IS RECURSIVE AT DEPTH: " + str(depth))
+            # The e-tree
+            G = nx.DiGraph()
+
+            # Add the nodes recursively 
+            self.parse_knowledge(None, player, G)
+            nodes_at_depth = self._epistemic_nodes_at_depth(G, depth)
+            for node in nodes_at_depth:
+                curr_res = self._has_recursive_ancestor(G, node)
+                res = res and curr_res
+                if not res:
+                    print(self.epistemic_tree())
+                    return res
+
+            player += 1
+
+        return res
+
     def epistemic_tree(self, file = "png"):
         """This function creates an e-tree for a specific player based on the knowledge gained from the
         MKBSC-algorithm. """
