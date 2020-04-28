@@ -9,6 +9,7 @@ from .helper_functions  import _permute, _lookup, _lookup_by_base, _reachable, c
 #import time
 from itertools          import chain, combinations, permutations
 from collections        import deque
+from random             import shuffle, sample, randint
 
 import networkx as nx
 from networkx.algorithms.isomorphism    import is_isomorphic
@@ -128,7 +129,47 @@ class MultiplayerGame:
         
         
         return MultiplayerGame(states, initial_state, alphabet, transitions, partitionings, False, True, **attributes)
-    
+
+    def _generate_observation_partition(num_non_singleton_obs, non_singleton_obs_range, states):
+        random_states = states.copy()
+        shuffle(random_states)
+
+        O = []
+        for i in range(num_non_singleton_obs):
+            obs_size = randint(non_singleton_obs_range[0], non_singleton_obs_range[1])
+            O.append(random_states[:obs_size])
+            random_states = random_states[obs_size:]
+
+        for s in random_states:
+            O.append(list(s))
+
+        return O
+
+    def create_random(num_players, num_states, num_actions, num_transitions, num_non_singleton_obs, non_singleton_obs_ranges):
+        possible_L = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        possible_Sigma = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+
+        L = possible_L[:num_states]
+        L0 = sample(L, 1)[0]
+        Sigma = possible_Sigma[:num_actions]
+
+        possible_Delta = [()]
+        for i in range(num_players):
+            possible_Delta = [tuple(list(d) + [s]) for s in Sigma for d in possible_Delta]
+
+        possible_Delta = [(l1, d, l2) for l1 in L for l2 in L for d in possible_Delta]
+
+        Sigma = (Sigma,) * num_players
+
+        shuffle(possible_Delta)
+        Delta = possible_Delta[:num_transitions]
+
+        Obs = []
+        for i in range(num_players):
+            Obs.append(MultiplayerGame._generate_observation_partition(num_non_singleton_obs[i], non_singleton_obs_ranges[i], L))
+
+        return MultiplayerGame.create(L, L0, Sigma, Delta, Obs)
+
     def _create_from_serialized(states, initial_state, alphabet, transitions, state_groupings, validate=True, **attributes):
         """Create a new game from serialized data and validate it"""
         
