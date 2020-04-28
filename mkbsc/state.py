@@ -111,8 +111,8 @@ class State:
             # and for every node passed on the way, the
             # label is added at the beginning of the hash string
             while not parent == None:
-                hash_string = str(G.node[parent]["label"]) + str(G.node[parent]["player"]) + hash_string
-                parent = G.node[parent]["parent"]
+                hash_string = str(G.nodes[parent]["label"]) + str(G.nodes[parent]["player"]) + hash_string
+                parent = G.nodes[parent]["parent"]
             
             # Hash the string
             node_id = hashlib.sha1(str.encode(hash_string)).hexdigest()

@@ -246,10 +246,10 @@ class MultiplayerGame:
             func = epistemic_functions[epistemic.lower()]
             for state in G.nodes():
                 if epistemic == "e-tree":
-                    G.node[state]["image"] = func(state)
-                    G.node[state]["label"] = ""
+                    G.nodes[state]["image"] = func(state)
+                    G.nodes[state]["label"] = ""
                 else:
-                    G.node[state]["label"] = func(state)
+                    G.nodes[state]["label"] = func(state)
 
         G.add_node("hidden", shape="none", label="")
         G.add_edge("hidden", self.initial_state)
@@ -259,7 +259,7 @@ class MultiplayerGame:
                 if type(target_states[i]) is not State:
                     target_states[i:i+1] = _lookup_by_base(self.states, target_states[i])
             for target_state in target_states:
-                G.node[target_state]["shape"] = "doublecircle"
+                G.nodes[target_state]["shape"] = "doublecircle"
 
         #if group_observations is None:
         #    group_observations = (self.player_count == 1)

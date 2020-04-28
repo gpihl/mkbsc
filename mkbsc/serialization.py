@@ -7,7 +7,7 @@ from subprocess import call
 
 import glob, os
 
-def export(game, filename, view=True, folder="pictures", epistemic="nice", file = "png", supress_edges=False, group_observations=None, target_states=None, **kwargs):
+def export(game, filename, view=False, folder="pictures", epistemic="nice", file = "png", supress_edges=False, group_observations=None, target_states=None, **kwargs):
     """Exports the game as a picture
     
     view -- if true, opens the file when done
